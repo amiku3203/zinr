@@ -1,13 +1,16 @@
-// src/routes/index.js
-const express = require('express');
+ const express = require('express');
+const authRoutes = require('./auth.routes');
+const restaurantRoutes = require('./restaurant.routes');
+const categoryRoutes = require('./category.routes');
+const menuItemRoutes = require('./menuItem.routes');
+const healthRouth= require("./health.routes");
 const router = express.Router();
 
- 
-const healthRoutes = require('./health.routes.js');
- 
+router.use('/auth', authRoutes);
+router.use('/restaurants', restaurantRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/items', menuItemRoutes);
 
-// Mount routes
-router.use('/health', healthRoutes);
- 
+router.use("/health",healthRouth);
 
 module.exports = router;
