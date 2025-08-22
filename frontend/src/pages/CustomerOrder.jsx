@@ -56,7 +56,7 @@ const CustomerOrder = () => {
   const fetchRestaurantData = async () => {
     try {
       console.log('Fetching restaurant data for ID:', restaurantId);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://zinr.onrender.com/api/v1';
       const response = await fetch(`${apiUrl}/restaurants/public/${restaurantId}`);
       const data = await response.json();
       
@@ -132,7 +132,7 @@ const CustomerOrder = () => {
           setIsProcessingPayment(true);
           
           // Verify payment with backend
-          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://zinr.onrender.com/api/v1';
           const verifyResponse = await fetch(`${apiUrl}/orders/verify-payment`, {
             method: 'POST',
             headers: {

@@ -50,7 +50,7 @@ const RestaurantDashboard = () => {
   // Initialize socket connection
   useEffect(() => {
     if (restaurantData?.data?._id) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io('https://zinr.onrender.com');
       
       newSocket.on('connect', () => {
         setIsConnected(true);

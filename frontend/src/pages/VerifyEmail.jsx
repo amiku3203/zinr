@@ -32,7 +32,7 @@ export default function VerifyEmail() {
 
   const verifyEmail = async (verificationToken) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/auth/verify-email?token=${verificationToken}`);
+      const response = await fetch(`https://zinr.onrender.com/api/v1/auth/verify-email?token=${verificationToken}`);
       const data = await response.json();
 
       if (data.success) {

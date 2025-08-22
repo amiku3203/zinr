@@ -3,7 +3,7 @@
 export const restoApi = createApi({
   reducerPath: "restoApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/v1",
+    baseUrl: "https://zinr.onrender.com/api/v1",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) headers.set("Authorization", `Bearer ${token}`);

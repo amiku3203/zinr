@@ -192,7 +192,7 @@ VITE_ENABLE_DEBUG=false
 # Backend
 cd backend
 npm run dev
-curl http://localhost:5000/api/health
+curl https://zinr.onrender.com/api/health
 
 # Frontend
 cd frontend
