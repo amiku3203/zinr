@@ -4,7 +4,8 @@ const logger=require("./logger");
 
 const connectDB= async ()=>{
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/zinr_restaurant';
+        await mongoose.connect(mongoUri);
         logger.info("MongoDB connected successfully");
     } catch (error) {
         logger.error("MongoDB connection failed", error);

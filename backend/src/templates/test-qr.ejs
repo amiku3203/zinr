@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .qr-test { text-align: center; margin: 20px 0; }
+        .qr-image { border: 2px solid #333; padding: 10px; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🧪 QR Code Test Email</h1>
+    
+    <div class="debug-info">
+        <strong>Debug Info:</strong><br>
+        Restaurant Name: <%= restaurantName %><br>
+        QR Code Available: <%= !!qrCodeDataUrl %><br>
+        QR Code Length: <%= qrCodeDataUrl ? qrCodeDataUrl.length : 'N/A' %><br>
+        QR Code Starts With: <%= qrCodeDataUrl ? qrCodeDataUrl.substring(0, 50) + '...' : 'N/A' %>
+    </div>
+    
+    <div class="qr-test">
+        <h2>📱 QR Code Display Test</h2>
+        
+        <% if (qrCodeDataUrl) { %>
+            <div class="qr-image">
+                <img 
+                    src="<%= qrCodeDataUrl %>" 
+                    alt="Test QR Code" 
+                    style="width: 200px; height: 200px;"
+                />
+                <p><strong>✅ QR Code Image Loaded</strong></p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3>Download Test:</h3>
+                <a href="<%= qrCodeDataUrl %>" download="test-qr.png" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    💾 Download QR Code
+                </a>
+            </div>
+        <% } else { %>
+            <div class="qr-image" style="background: #ffebee; color: #c62828; padding: 20px;">
+                <p><strong>❌ No QR Code Data Available</strong></p>
+                <p>qrCodeDataUrl is undefined or null</p>
+            </div>
+        <% } %>
+    </div>
+    
+    <div style="margin: 20px 0; padding: 10px; background: #e3f2fd; border-left: 4px solid #2196f3;">
+        <h3>🔍 Troubleshooting:</h3>
+        <ul>
+            <li>If you see the QR code above, the email template is working correctly</li>
+            <li>If you see "No QR Code Data Available", there's an issue with data passing</li>
+            <li>Check the browser console for any JavaScript errors</li>
+            <li>Some email clients may block images for security reasons</li>
+        </ul>
+    </div>
+</body>
+</html>
