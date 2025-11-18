@@ -11,7 +11,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: "https://zinr-dev-amit-tech.vercel.app", // your frontend URL
+    origin: "http://localhost:5173", // your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })

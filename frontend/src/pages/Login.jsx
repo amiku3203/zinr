@@ -1,27 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation, useForgotPasswordMutation } from "../store/features/auth/authApi";
+import {
+  useLoginMutation,
+  useForgotPasswordMutation,
+} from "../store/features/auth/authApi";
 import { useDispatch } from "react-redux";
 import { setToken, setUser } from "../store/features/auth/authSlice";
+import { useAuth } from "../context/AuthContext";
 import { showSuccess, showError } from "../utils/toast";
 import { motion } from "framer-motion";
 import SEO from "../components/SEO";
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  Shield, 
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Shield,
   Zap,
   CheckCircle,
   X,
-  Send
+  Send,
 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { refetchUser } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -30,20 +35,22 @@ export default function Login() {
 
   // RTK Query mutation hooks
   const [login, { isLoading, isError, error }] = useLoginMutation();
-  const [forgotPassword, { isLoading: isSendingReset }] = useForgotPasswordMutation();
+  const [forgotPassword, { isLoading: isSendingReset }] =
+    useForgotPasswordMutation();
 
   // SEO structured data for Login page
   const loginStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Login - ZinR",
-    "description": "Access your ZinR restaurant management dashboard. Login to manage menus, orders, and business analytics.",
-    "url": "https://zinr.com/login",
-    "mainEntity": {
+    name: "Login - ZinR",
+    description:
+      "Access your ZinR restaurant management dashboard. Login to manage menus, orders, and business analytics.",
+    url: "https://zinr.com/login",
+    mainEntity: {
       "@type": "WebApplication",
-      "name": "ZinR Dashboard",
-      "applicationCategory": "BusinessApplication"
-    }
+      name: "ZinR Dashboard",
+      applicationCategory: "BusinessApplication",
+    },
   };
 
   const handleChange = (e) => {
@@ -56,6 +63,10 @@ export default function Login() {
       const userData = await login(formData).unwrap();
       dispatch(setToken(userData));
       dispatch(setUser(userData));
+
+      // Fetch user data including subscription details
+      await refetchUser();
+
       showSuccess("Login successful");
       navigate("/dashboard");
     } catch (err) {
@@ -76,230 +87,253 @@ export default function Login() {
       setShowForgotPassword(false);
       setForgotPasswordEmail("");
     } catch (err) {
-      showError(err?.data?.message || "Failed to send reset link. Please try again.");
+      showError(
+        err?.data?.message || "Failed to send reset link. Please try again."
+      );
     }
   };
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Login - ZinR Restaurant Dashboard"
         description="Access your ZinR restaurant management dashboard. Login to manage menus, orders, and business analytics."
         keywords={[
           "restaurant dashboard login",
           "restaurant management login",
           "ZinR login",
-          "restaurant software access"
+          "restaurant software access",
         ]}
         structuredData={loginStructuredData}
       />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800 px-4 py-8">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        
-        {/* Left Side - Hero Content */}
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-white space-y-8"
-        >
-          <div className="space-y-6">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-extrabold text-2xl px-4 py-3 rounded-xl shadow-lg">
-                Z
-              </div>
-              <div>
-                <h1 className="text-5xl font-extrabold tracking-wide">
-                  Zin<span className="text-yellow-400">R</span>
-                </h1>
-                <p className="text-xl text-gray-300">Restaurant Solutions</p>
-              </div>
-            </div>
-            
-            <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
-              Welcome back to your
-              <span className="block text-yellow-400">restaurant dashboard</span>
-            </h2>
-            
-            <p className="text-xl text-gray-300 leading-relaxed">
-              Access your restaurant management tools, monitor orders in real-time, 
-              and grow your business with our comprehensive platform.
-            </p>
-          </div>
-
-          {/* Features List */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-gray-300">Real-time order management</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-gray-300">Advanced analytics & insights</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-gray-300">QR code digital menus</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-gray-300">24/7 customer support</span>
-            </div>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="flex items-center space-x-6 pt-4">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-5 h-5 text-yellow-400" />
-              <span className="text-sm text-gray-400">Bank-level security</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Zap className="w-5 h-5 text-yellow-400" />
-              <span className="text-sm text-gray-400">Lightning fast</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Right Side - Login Form */}
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex justify-center"
-        >
-          <div className="w-full max-w-md">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-8">
-              
-              {/* Form Header */}
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Welcome Back</h3>
-                <p className="text-gray-300">Sign in to your account to continue</p>
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left Side - Hero Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-white space-y-8"
+          >
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-extrabold text-2xl px-4 py-3 rounded-xl shadow-lg">
+                  Z
+                </div>
+                <div>
+                  <h1 className="text-5xl font-extrabold tracking-wide">
+                    Zin<span className="text-yellow-400">R</span>
+                  </h1>
+                  <p className="text-xl text-gray-300">Restaurant Solutions</p>
+                </div>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Email */}
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-gray-300 text-sm font-medium">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-900/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
-                      placeholder="Enter your email"
-                    />
-                  </div>
+              <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
+                Welcome back to your
+                <span className="block text-yellow-400">
+                  restaurant dashboard
+                </span>
+              </h2>
+
+              <p className="text-xl text-gray-300 leading-relaxed">
+                Access your restaurant management tools, monitor orders in
+                real-time, and grow your business with our comprehensive
+                platform.
+              </p>
+            </div>
+
+            {/* Features List */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <span className="text-gray-300">
+                  Real-time order management
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <span className="text-gray-300">
+                  Advanced analytics & insights
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <span className="text-gray-300">QR code digital menus</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <span className="text-gray-300">24/7 customer support</span>
+              </div>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="flex items-center space-x-6 pt-4">
+              <div className="flex items-center space-x-2">
+                <Shield className="w-5 h-5 text-yellow-400" />
+                <span className="text-sm text-gray-400">
+                  Bank-level security
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <span className="text-sm text-gray-400">Lightning fast</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right Side - Login Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex justify-center"
+          >
+            <div className="w-full max-w-md">
+              <div className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-8">
+                {/* Form Header */}
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    Welcome Back
+                  </h3>
+                  <p className="text-gray-300">
+                    Sign in to your account to continue
+                  </p>
                 </div>
 
-                {/* Password */}
-                <div className="space-y-2">
-                  <label htmlFor="password" className="block text-gray-300 text-sm font-medium">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      className="w-full pl-10 pr-12 py-3 rounded-xl bg-gray-900/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
-                      placeholder="Enter your password"
-                    />
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-gray-300 text-sm font-medium"
+                    >
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-900/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="password"
+                      className="block text-gray-300 text-sm font-medium"
+                    >
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-10 pr-12 py-3 rounded-xl bg-gray-900/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                        placeholder="Enter your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me & Forgot Password */}
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 text-yellow-400 bg-gray-900 border-gray-700 rounded focus:ring-yellow-400 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-300">Remember me</span>
+                    </label>
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      Forgot password?
                     </button>
                   </div>
-                </div>
 
-                {/* Remember Me & Forgot Password */}
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 text-yellow-400 bg-gray-900 border-gray-700 rounded focus:ring-yellow-400 focus:ring-2"
-                    />
-                    <span className="text-sm text-gray-300">Remember me</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-
-                {/* Error Message */}
-                {isError && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
-                  >
-                    <p className="text-red-400 text-sm text-center">
-                      {error?.data?.message || "Invalid email or password"}
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-bold rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      <span>Signing in...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Sign In</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
+                  {/* Error Message */}
+                  {isError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
+                    >
+                      <p className="text-red-400 text-sm text-center">
+                        {error?.data?.message || "Invalid email or password"}
+                      </p>
+                    </motion.div>
                   )}
-                </button>
-              </form>
 
-              {/* Divider */}
-              <div className="flex items-center my-8">
-                <div className="flex-grow border-t border-gray-600"></div>
-                <span className="px-4 text-gray-400 text-sm">OR</span>
-                <div className="flex-grow border-t border-gray-600"></div>
-              </div>
-
-              {/* Signup Link */}
-              <div className="text-center">
-                <p className="text-gray-300 text-sm">
-                  Don't have an account?{" "}
+                  {/* Submit Button */}
                   <button
-                    onClick={() => navigate("/signup")}
-                    className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors hover:underline"
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-bold rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
-                    Create one now
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                        <span>Signing in...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Sign In</span>
+                        <ArrowRight className="w-5 h-5" />
+                      </>
+                    )}
                   </button>
-                </p>
+                </form>
+
+                {/* Divider */}
+                <div className="flex items-center my-8">
+                  <div className="flex-grow border-t border-gray-600"></div>
+                  <span className="px-4 text-gray-400 text-sm">OR</span>
+                  <div className="flex-grow border-t border-gray-600"></div>
+                </div>
+
+                {/* Signup Link */}
+                <div className="text-center">
+                  <p className="text-gray-300 text-sm">
+                    Don't have an account?{" "}
+                    <button
+                      onClick={() => navigate("/signup")}
+                      className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors hover:underline"
+                    >
+                      Create one now
+                    </button>
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
-    </div>
 
       {/* Forgot Password Modal */}
       {showForgotPassword && (

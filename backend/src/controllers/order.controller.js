@@ -49,7 +49,8 @@ const createOrder = async (req, res) => {
         specialInstructions: item.specialInstructions || ''
       });
     }
-
+     
+    const queueNumber = Math.floor(Math.random() * 1000) + 1;
     // Create order with pending payment status
     const order = new Order({
       restaurant: restaurantId,
@@ -58,6 +59,7 @@ const createOrder = async (req, res) => {
       totalAmount,
       tableNumber,
       notes,
+      queueNumber,
       paymentMethod: 'razorpay', // Force Razorpay payment
       paymentStatus: 'pending'
     });

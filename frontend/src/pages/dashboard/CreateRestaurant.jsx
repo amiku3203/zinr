@@ -1,4 +1,4 @@
- import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useCreateRestaurantMutation,
@@ -27,29 +27,33 @@ import {
 
 export default function CreateRestaurant() {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    address: "", 
+  const [formData, setFormData] = useState({
+    name: "",
+    address: "",
     phone: "",
-    razorpay: { keyId: "", keySecret: "" }
+    razorpay: { keyId: "", keySecret: "" },
   });
   const [editing, setEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [isValidatingCredentials, setIsValidatingCredentials] = useState(false);
-  
-  const { data: restaurantData, isLoading: isFetching, refetch } =
-    useGetMyRestaurantQuery();
+
+  const {
+    data: restaurantData,
+    isLoading: isFetching,
+    refetch,
+  } = useGetMyRestaurantQuery();
   const [createRestaurant, { isLoading: isCreating }] =
     useCreateRestaurantMutation();
   const [updateRestaurant, { isLoading: isUpdating }] =
     useUpdateRestaurantMutation();
-  const [deleteRestaurant, { isLoading: isDeleting }] = useDeleteRestaurantMutation();
+  const [deleteRestaurant, { isLoading: isDeleting }] =
+    useDeleteRestaurantMutation();
 
   // Validation functions
   const validateRazorpayKeyId = (keyId) => {
     if (!keyId) return "Razorpay Key ID is required";
-    if (!keyId.startsWith('rzp_')) return "Key ID must start with 'rzp_'";
+    if (!keyId.startsWith("rzp_")) return "Key ID must start with 'rzp_'";
     if (keyId.length < 20) return "Key ID must be at least 20 characters long";
     if (keyId.length > 30) return "Key ID must be less than 30 characters long";
     return null;
@@ -57,27 +61,33 @@ export default function CreateRestaurant() {
 
   const validateRazorpayKeySecret = (keySecret) => {
     if (!keySecret) return "Razorpay Key Secret is required";
-    if (keySecret.length < 20) return "Key Secret must be at least 20 characters long";
-    if (keySecret.length > 50) return "Key Secret must be less than 50 characters long";
-    if (!/^[a-zA-Z0-9]+$/.test(keySecret)) return "Key Secret must contain only letters and numbers";
+    if (keySecret.length < 20)
+      return "Key Secret must be at least 20 characters long";
+    if (keySecret.length > 50)
+      return "Key Secret must be less than 50 characters long";
+    if (!/^[a-zA-Z0-9]+$/.test(keySecret))
+      return "Key Secret must contain only letters and numbers";
     return null;
   };
 
   const validateForm = () => {
     const errors = {};
-    
+
     // Basic field validation
     if (!formData.name.trim()) errors.name = "Restaurant name is required";
-    if (!formData.address.trim()) errors.address = "Restaurant address is required";
+    if (!formData.address.trim())
+      errors.address = "Restaurant address is required";
     if (!formData.phone.trim()) errors.phone = "Phone number is required";
-    
+
     // Razorpay validation
     const keyIdError = validateRazorpayKeyId(formData.razorpay.keyId);
-    const keySecretError = validateRazorpayKeySecret(formData.razorpay.keySecret);
-    
+    const keySecretError = validateRazorpayKeySecret(
+      formData.razorpay.keySecret
+    );
+
     if (keyIdError) errors.razorpayKeyId = keyIdError;
     if (keySecretError) errors.razorpayKeySecret = keySecretError;
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -90,44 +100,52 @@ export default function CreateRestaurant() {
     }
 
     const keyIdError = validateRazorpayKeyId(formData.razorpay.keyId);
-    const keySecretError = validateRazorpayKeySecret(formData.razorpay.keySecret);
-    
+    const keySecretError = validateRazorpayKeySecret(
+      formData.razorpay.keySecret
+    );
+
     if (keyIdError || keySecretError) {
       showError("Please fix validation errors before testing credentials");
       return;
     }
 
     setIsValidatingCredentials(true);
-    
+
     try {
       // Test the credentials by making a simple API call
-      const response = await fetch('https://api.razorpay.com/v1/orders', {
-        method: 'GET',
+      const response = await fetch("https://api.razorpay.com/v1/orders", {
+        method: "GET",
         headers: {
-          'Authorization': `Basic ${btoa(`${formData.razorpay.keyId}:${formData.razorpay.keySecret}`)}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Basic ${btoa(
+            `${formData.razorpay.keyId}:${formData.razorpay.keySecret}`
+          )}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.status === 200) {
         showSuccess("✅ Razorpay credentials are valid!");
-        setValidationErrors(prev => ({
+        setValidationErrors((prev) => ({
           ...prev,
           razorpayKeyId: null,
-          razorpayKeySecret: null
+          razorpayKeySecret: null,
         }));
       } else if (response.status === 401) {
-        showError("❌ Invalid Razorpay credentials. Please check your Key ID and Key Secret.");
-        setValidationErrors(prev => ({
+        showError(
+          "❌ Invalid Razorpay credentials. Please check your Key ID and Key Secret."
+        );
+        setValidationErrors((prev) => ({
           ...prev,
           razorpayKeyId: "Invalid credentials",
-          razorpayKeySecret: "Invalid credentials"
+          razorpayKeySecret: "Invalid credentials",
         }));
       } else {
-        showError("❌ Unable to verify credentials. Please check your internet connection.");
+        showError(
+          "❌ Unable to verify credentials. Please check your internet connection."
+        );
       }
     } catch (error) {
-      console.error('Credential validation error:', error);
+      console.error("Credential validation error:", error);
       showError("❌ Error validating credentials. Please try again.");
     } finally {
       setIsValidatingCredentials(false);
@@ -142,8 +160,8 @@ export default function CreateRestaurant() {
         phone: restaurantData.data.phone || "",
         razorpay: {
           keyId: restaurantData.data.razorpay?.keyId || "",
-          keySecret: restaurantData.data.razorpay?.keySecret || ""
-        }
+          keySecret: restaurantData.data.razorpay?.keySecret || "",
+        },
       });
     } else {
       // Reset form when no restaurant data (after deletion)
@@ -151,7 +169,7 @@ export default function CreateRestaurant() {
         name: "",
         address: "",
         phone: "",
-        razorpay: { keyId: "", keySecret: "" }
+        razorpay: { keyId: "", keySecret: "" },
       });
       setEditing(false);
     }
@@ -165,7 +183,7 @@ export default function CreateRestaurant() {
         name: "",
         address: "",
         phone: "",
-        razorpay: { keyId: "", keySecret: "" }
+        razorpay: { keyId: "", keySecret: "" },
       });
       setEditing(false);
     }
@@ -173,61 +191,61 @@ export default function CreateRestaurant() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Restaurant data changed:', {
+    console.log("Restaurant data changed:", {
       hasData: !!restaurantData?.data,
       data: restaurantData?.data,
       isFetching,
-      formData
+      formData,
     });
   }, [restaurantData, isFetching, formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Clear validation errors when user starts typing
-    if (name.startsWith('razorpay.')) {
-      const field = name.split('.')[1];
+    if (name.startsWith("razorpay.")) {
+      const field = name.split(".")[1];
       setFormData({
         ...formData,
         razorpay: {
           ...formData.razorpay,
-          [field]: value
-        }
+          [field]: value,
+        },
       });
-      
+
       // Clear specific validation errors
-      if (field === 'keyId') {
-        setValidationErrors(prev => ({ ...prev, razorpayKeyId: null }));
-      } else if (field === 'keySecret') {
-        setValidationErrors(prev => ({ ...prev, razorpayKeySecret: null }));
+      if (field === "keyId") {
+        setValidationErrors((prev) => ({ ...prev, razorpayKeyId: null }));
+      } else if (field === "keySecret") {
+        setValidationErrors((prev) => ({ ...prev, razorpayKeySecret: null }));
       }
     } else {
       setFormData({ ...formData, [name]: value });
       // Clear basic field validation errors
-      setValidationErrors(prev => ({ ...prev, [name]: null }));
+      setValidationErrors((prev) => ({ ...prev, [name]: null }));
     }
   };
 
   // Validate field on blur
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'razorpay.keyId') {
+
+    if (name === "razorpay.keyId") {
       const error = validateRazorpayKeyId(value);
       if (error) {
-        setValidationErrors(prev => ({ ...prev, razorpayKeyId: error }));
+        setValidationErrors((prev) => ({ ...prev, razorpayKeyId: error }));
       }
-    } else if (name === 'razorpay.keySecret') {
+    } else if (name === "razorpay.keySecret") {
       const error = validateRazorpayKeySecret(value);
       if (error) {
-        setValidationErrors(prev => ({ ...prev, razorpayKeySecret: error }));
+        setValidationErrors((prev) => ({ ...prev, razorpayKeySecret: error }));
       }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       showError("Please fix the validation errors before submitting");
       return;
@@ -257,7 +275,7 @@ export default function CreateRestaurant() {
       name: "",
       address: "",
       phone: "",
-      razorpay: { keyId: "", keySecret: "" }
+      razorpay: { keyId: "", keySecret: "" },
     });
     setEditing(false);
     setShowDeleteModal(false);
@@ -272,37 +290,38 @@ export default function CreateRestaurant() {
   const confirmDelete = async () => {
     try {
       await deleteRestaurant().unwrap();
-      showSuccess("Restaurant deleted successfully! You can now create a new one.");
-      
+      showSuccess(
+        "Restaurant deleted successfully! You can now create a new one."
+      );
+
       // Reset local state
       setFormData({ name: "", address: "", phone: "" });
       setShowDeleteModal(false);
       setEditing(false);
-      
+
       // Multiple cache invalidation strategies
       try {
         // 1. Manually invalidate cache
-        dispatch(restoApi.util.invalidateTags(['Restaurant']));
-        
+        dispatch(restoApi.util.invalidateTags(["Restaurant"]));
+
         // 2. Force refetch
         await refetch();
-        
+
         // 3. Clear any cached data manually
         dispatch(restoApi.util.resetApiState());
-        
+
         // 4. Force a fresh refetch
         setTimeout(() => {
           refetch();
         }, 100);
-        
+
         // 5. Additional aggressive cache clearing
         setTimeout(() => {
-          dispatch(restoApi.util.invalidateTags(['Restaurant']));
+          dispatch(restoApi.util.invalidateTags(["Restaurant"]));
           refetch();
         }, 200);
-        
       } catch (cacheError) {
-        console.error('Cache invalidation error:', cacheError);
+        console.error("Cache invalidation error:", cacheError);
         // Fallback: force page reload if cache invalidation fails
         window.location.reload();
       }
@@ -332,7 +351,7 @@ export default function CreateRestaurant() {
             Create your first restaurant to get started
           </p>
         </header>
-        
+
         <main className="flex-1 p-6">
           <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-8 w-full h-full">
             <motion.form
@@ -344,7 +363,7 @@ export default function CreateRestaurant() {
               <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center">
                 Create Your Restaurant
               </h2>
-              
+
               {/* Validation Summary */}
               <div className="mb-6 p-4 bg-gray-800/50 border border-gray-600 rounded-lg">
                 <h3 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center gap-2">
@@ -370,7 +389,7 @@ export default function CreateRestaurant() {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block mb-1 text-gray-300 font-medium">
                   Restaurant Name
@@ -384,7 +403,7 @@ export default function CreateRestaurant() {
                   placeholder="My Amazing Restaurant"
                   required
                   className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                    validationErrors.name ? 'border-red-500' : 'border-gray-700'
+                    validationErrors.name ? "border-red-500" : "border-gray-700"
                   } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                 />
                 {validationErrors.name && (
@@ -408,7 +427,9 @@ export default function CreateRestaurant() {
                   placeholder="123 Main Street, Delhi"
                   required
                   className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                    validationErrors.address ? 'border-red-500' : 'border-gray-700'
+                    validationErrors.address
+                      ? "border-red-500"
+                      : "border-gray-700"
                   } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                 />
                 {validationErrors.address && (
@@ -432,7 +453,9 @@ export default function CreateRestaurant() {
                   placeholder="+91-9876543210"
                   required
                   className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                    validationErrors.phone ? 'border-red-500' : 'border-gray-700'
+                    validationErrors.phone
+                      ? "border-red-500"
+                      : "border-gray-700"
                   } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                 />
                 {validationErrors.phone && (
@@ -449,9 +472,10 @@ export default function CreateRestaurant() {
                   💳 Payment Gateway Setup
                 </h3>
                 <p className="text-sm text-gray-400 mb-4">
-                  Connect your Razorpay account to collect payments from customers
+                  Connect your Razorpay account to collect payments from
+                  customers
                 </p>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block mb-1 text-gray-300 font-medium">
@@ -466,7 +490,9 @@ export default function CreateRestaurant() {
                       placeholder="rzp_test_xxxxxxxxxxxxx"
                       required
                       className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                        validationErrors.razorpayKeyId ? 'border-red-500' : 'border-gray-700'
+                        validationErrors.razorpayKeyId
+                          ? "border-red-500"
+                          : "border-gray-700"
                       } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                     />
                     {validationErrors.razorpayKeyId && (
@@ -490,7 +516,9 @@ export default function CreateRestaurant() {
                       placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
                       required
                       className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                        validationErrors.razorpayKeySecret ? 'border-red-500' : 'border-gray-700'
+                        validationErrors.razorpayKeySecret
+                          ? "border-red-500"
+                          : "border-gray-700"
                       } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                     />
                     {validationErrors.razorpayKeySecret && (
@@ -504,28 +532,44 @@ export default function CreateRestaurant() {
 
                 <div className="mt-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                   <p className="text-sm text-blue-300">
-                    <strong>Note:</strong> These credentials are required to accept payments from customers. 
-                    Orders cannot be placed without payment gateway configuration.
+                    <strong>Note:</strong> These credentials are required to
+                    accept payments from customers. Orders cannot be placed
+                    without payment gateway configuration.
                   </p>
                   <div className="mt-3 text-xs text-blue-200 space-y-1">
-                    <p><strong>Key ID Format:</strong> rzp_test_xxxxxxxxxxxxx (starts with 'rzp_')</p>
-                    <p><strong>Key Secret:</strong> 20-50 characters, letters and numbers only</p>
-                    <p><strong>Test Mode:</strong> Use test credentials for development, live credentials for production</p>
+                    <p>
+                      <strong>Key ID Format:</strong> rzp_test_xxxxxxxxxxxxx
+                      (starts with 'rzp_')
+                    </p>
+                    <p>
+                      <strong>Key Secret:</strong> 20-50 characters, letters and
+                      numbers only
+                    </p>
+                    <p>
+                      <strong>Test Mode:</strong> Use test credentials for
+                      development, live credentials for production
+                    </p>
                   </div>
                 </div>
 
                 {/* Credential Status Indicator */}
-                {formData.razorpay.keyId && formData.razorpay.keySecret && !validationErrors.razorpayKeyId && !validationErrors.razorpayKeySecret && (
-                  <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
-                    <div className="flex items-center gap-2 text-green-300">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="text-sm font-medium">Credentials format looks valid</span>
+                {formData.razorpay.keyId &&
+                  formData.razorpay.keySecret &&
+                  !validationErrors.razorpayKeyId &&
+                  !validationErrors.razorpayKeySecret && (
+                    <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-300">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          Credentials format looks valid
+                        </span>
+                      </div>
+                      <p className="text-xs text-green-200 mt-1">
+                        Click "Test Razorpay Credentials" to verify they work
+                        with Razorpay
+                      </p>
                     </div>
-                    <p className="text-xs text-green-200 mt-1">
-                      Click "Test Razorpay Credentials" to verify they work with Razorpay
-                    </p>
-                  </div>
-                )}
+                  )}
 
                 <button
                   type="button"
@@ -538,7 +582,9 @@ export default function CreateRestaurant() {
                   ) : (
                     <CheckCircle className="h-5 w-5" />
                   )}
-                  {isValidatingCredentials ? "Testing..." : "Test Razorpay Credentials"}
+                  {isValidatingCredentials
+                    ? "Testing..."
+                    : "Test Razorpay Credentials"}
                 </button>
               </div>
 
@@ -624,17 +670,18 @@ export default function CreateRestaurant() {
                         📱 Your Restaurant QR Code
                       </h3>
                       <p className="text-gray-300 text-sm">
-                        Customers can scan this QR code to access your digital menu and place orders
+                        Customers can scan this QR code to access your digital
+                        menu and place orders
                       </p>
                     </div>
-                    
+
                     <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
                       {/* QR Code Display */}
                       <div className="text-center">
                         <div className="bg-white p-4 rounded-lg inline-block">
-                          <img 
-                            src={restaurantData.data.qrCode} 
-                            alt="Restaurant QR Code" 
+                          <img
+                            src={restaurantData.data.qrCode}
+                            alt="Restaurant QR Code"
                             className="w-48 h-48 object-contain"
                           />
                         </div>
@@ -642,12 +689,12 @@ export default function CreateRestaurant() {
                           Scan with any QR code app
                         </p>
                       </div>
-                      
+
                       {/* Action Buttons */}
                       <div className="flex flex-col gap-3">
                         <button
                           onClick={() => {
-                            const link = document.createElement('a');
+                            const link = document.createElement("a");
                             link.href = restaurantData.data.qrCode;
                             link.download = `${restaurantData.data.name}-QR-Code.png`;
                             link.click();
@@ -657,10 +704,10 @@ export default function CreateRestaurant() {
                           <Download className="w-4 h-4" />
                           Download QR Code
                         </button>
-                        
+
                         <button
                           onClick={() => {
-                            const printWindow = window.open('', '_blank');
+                            const printWindow = window.open("", "_blank");
                             printWindow.document.write(`
                               <html>
                                 <head>
@@ -694,11 +741,23 @@ export default function CreateRestaurant() {
                           <Printer className="w-4 h-4" />
                           Print QR Code
                         </button>
-                        
+
                         <button
                           onClick={() => {
-                            navigator.clipboard.writeText(`${process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173'}/menu/${restaurantData.data._id}`);
-                            showSuccess('Menu link copied to clipboard!');
+                            const menuUrl = `${window.location.origin}/menu/${restaurantData.data._id}`;
+                            navigator.clipboard
+                              .writeText(menuUrl)
+                              .then(() => {
+                                showSuccess(
+                                  " Menu link copied to clipboard!"
+                                );
+                              })
+                              .catch((err) => {
+                                console.error("Failed to copy:", err);
+                                showError(
+                                  "Failed to copy link. Please try again."
+                                );
+                              });
                           }}
                           className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
                         >
@@ -707,11 +766,15 @@ export default function CreateRestaurant() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="mt-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
-                      <h4 className="font-semibold text-green-400 mb-2">💡 How to Use:</h4>
+                      <h4 className="font-semibold text-green-400 mb-2">
+                        💡 How to Use:
+                      </h4>
                       <ul className="text-sm text-gray-300 space-y-1">
-                        <li>• Print this QR code and display it on your tables</li>
+                        <li>
+                          • Print this QR code and display it on your tables
+                        </li>
                         <li>• Add it to your printed menus and entrance</li>
                         <li>• Customers scan it to access your digital menu</li>
                         <li>• Orders come directly to your dashboard</li>
@@ -800,7 +863,9 @@ export default function CreateRestaurant() {
                     placeholder="Amit's Cafe"
                     required
                     className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                      validationErrors.name ? 'border-red-500' : 'border-gray-700'
+                      validationErrors.name
+                        ? "border-red-500"
+                        : "border-gray-700"
                     } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                   />
                   {validationErrors.name && (
@@ -824,7 +889,9 @@ export default function CreateRestaurant() {
                     placeholder="123 Main Street, Delhi"
                     required
                     className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                      validationErrors.address ? 'border-red-500' : 'border-gray-700'
+                      validationErrors.address
+                        ? "border-red-500"
+                        : "border-gray-700"
                     } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                   />
                   {validationErrors.address && (
@@ -848,7 +915,9 @@ export default function CreateRestaurant() {
                     placeholder="+91-9876543210"
                     required
                     className={`w-full px-4 py-3 rounded-lg bg-gray-900 border ${
-                      validationErrors.phone ? 'border-red-500' : 'border-gray-700'
+                      validationErrors.phone
+                        ? "border-red-500"
+                        : "border-gray-700"
                     } text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
                   />
                   {validationErrors.phone && (
@@ -861,9 +930,15 @@ export default function CreateRestaurant() {
 
                 <button
                   type="submit"
-                  disabled={isCreating || isUpdating || Object.keys(validationErrors).length > 0}
+                  disabled={
+                    isCreating ||
+                    isUpdating ||
+                    Object.keys(validationErrors).length > 0
+                  }
                   className={`w-full flex items-center justify-center gap-2 py-3 font-bold rounded-lg shadow-lg transition ${
-                    isCreating || isUpdating || Object.keys(validationErrors).length > 0
+                    isCreating ||
+                    isUpdating ||
+                    Object.keys(validationErrors).length > 0
                       ? "bg-gray-600 cursor-not-allowed"
                       : "bg-yellow-400 hover:bg-yellow-500 text-black hover:-translate-y-0.5 hover:shadow-xl"
                   }`}
@@ -873,21 +948,25 @@ export default function CreateRestaurant() {
                   )}
                   {isCreating || isUpdating ? "Saving..." : "Save & Continue"}
                 </button>
-                
+
                 {/* Form Status Indicator for Edit Form */}
                 {Object.keys(validationErrors).length > 0 && (
                   <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
                     <div className="flex items-center gap-2 text-red-300 mb-2">
                       <AlertCircle className="w-4 h-4" />
-                      <span className="text-sm font-medium">Please fix the following errors:</span>
+                      <span className="text-sm font-medium">
+                        Please fix the following errors:
+                      </span>
                     </div>
                     <ul className="text-xs text-red-200 space-y-1">
-                      {Object.entries(validationErrors).map(([field, error]) => (
-                        <li key={field} className="flex items-center gap-2">
-                          <span>•</span>
-                          <span>{error}</span>
-                        </li>
-                      ))}
+                      {Object.entries(validationErrors).map(
+                        ([field, error]) => (
+                          <li key={field} className="flex items-center gap-2">
+                            <span>•</span>
+                            <span>{error}</span>
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 )}

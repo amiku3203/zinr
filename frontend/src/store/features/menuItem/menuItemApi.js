@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
+const baseUrl = import.meta.env.VITE_API_URL;
 export const menuItemApi = createApi({
   reducerPath: "menuItemApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://zinr.onrender.com/api/v1",
+    baseUrl:baseUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -14,37 +14,48 @@ export const menuItemApi = createApi({
   endpoints: (builder) => ({
     // Create a new menu item
     createMenuItem: builder.mutation({
-      query: (data) => ({
-        url: `/items/${data.categoryId}`,
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["MenuItem", "Category", "Restaurant"],
-    }),
+  query: (data) => {
+    const { categoryId, ...body } = data;  // remove categoryId from body
+
+    return {
+      url: `/items/${categoryId}`,
+      method: "POST",
+      body, // send everything except categoryId
+    };
+  },
+  invalidatesTags: ["MenuItem", "Category", "Restaurant"],
+}),
+
 
     // Get menu items for a category
     getMenuItemsByCategory: builder.query({
       query: (categoryId) => `/items/${categoryId}`,
-      providesTags: (result) => 
-        result?.data?.items 
+      providesTags: (result) =>
+        result?.data?.items
           ? [
-              ...result.data.items.map(({ _id }) => ({ type: 'MenuItem', id: _id })),
-              { type: 'Category', id: result.data._id }
+              ...result.data.items.map(({ _id }) => ({
+                type: "MenuItem",
+                id: _id,
+              })),
+              { type: "Category", id: result.data._id },
             ]
-          : ['MenuItem', 'Category'],
+          : ["MenuItem", "Category"],
     }),
 
     // Update a menu item
     updateMenuItem: builder.mutation({
-      query: ({ id, data }) => ({
+      query: ({ id, data }) => {
+        // remove categoryId from body
+        const { categoryId, ...body } = data;
+        return {
         url: `/items/${id}`,
         method: "PUT",
-        body: data,
-      }),
+        body,
+      }},
       invalidatesTags: (result, error, { id }) => [
-        { type: 'MenuItem', id },
-        'Category',
-        'Restaurant'
+        { type: "MenuItem", id },
+        "Category",
+        "Restaurant",
       ],
     }),
 
@@ -60,14 +71,17 @@ export const menuItemApi = createApi({
     // Get all menu items for a restaurant
     getMenuItemsByRestaurant: builder.query({
       query: (restaurantId) => `/items/restaurant/${restaurantId}`,
-      providesTags: (result) => 
-        result?.data 
+      providesTags: (result) =>
+        result?.data
           ? [
-              ...result.data.map(item => ({ type: 'MenuItem', id: item._id })),
-              'Category',
-              'Restaurant'
+              ...result.data.map((item) => ({
+                type: "MenuItem",
+                id: item._id,
+              })),
+              "Category",
+              "Restaurant",
             ]
-          : ['MenuItem', 'Category', 'Restaurant'],
+          : ["MenuItem", "Category", "Restaurant"],
     }),
   }),
 });

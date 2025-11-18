@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
+const baseUrl = import.meta.env.VITE_API_URL;
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://zinr.onrender.com/api/v1",
+    // baseUrl: "http://localhost:5000/api/v1",
+    baseUrl:baseUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -25,25 +26,28 @@ export const categoryApi = createApi({
     // Get categories for a restaurant
     getCategoriesByRestaurant: builder.query({
       query: (restaurantId) => `/categories/restaurant/${restaurantId}`,
-      providesTags: (result) => 
-        result?.data 
+      providesTags: (result) =>
+        result?.data
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Category', id: _id })),
-              'Restaurant'
+              ...result.data.map(({ _id }) => ({ type: "Category", id: _id })),
+              "Restaurant",
             ]
-          : ['Category', 'Restaurant'],
+          : ["Category", "Restaurant"],
     }),
 
     // Update a category
     updateCategory: builder.mutation({
-      query: ({ id, data }) => ({
+      query: ({ id, data }) => {
+        // remove categoryId from body
+        const { restaurantId, ...body } = data;
+        return {
         url: `/categories/${id}`,
         method: "PUT",
-        body: data,
-      }),
+        body,
+      }},
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Category', id },
-        'Restaurant'
+        { type: "Category", id },
+        "Restaurant",
       ],
     }),
 

@@ -1,9 +1,9 @@
  import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
+const baseUrl = import.meta.env.VITE_API_URL;
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://zinr.onrender.com/api/v1',
+    baseUrl: baseUrl,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token;
       if (token) {

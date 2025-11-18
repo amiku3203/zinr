@@ -1,4 +1,3 @@
- // src/layouts/DashboardLayout.jsx
 import { useDispatch, useSelector } from "react-redux";
 import { clearAuth } from "../store/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +18,12 @@ import {
   Play,
   ChevronRight,
   Minus,
+  User,
+  Mail,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Package,
 } from "lucide-react";
 import { showSuccess } from "../utils/toast";
 import { useState } from "react";
@@ -33,12 +38,18 @@ export default function DashboardLayout({ children }) {
     canAccessFeature,
     hasActiveSubscription,
     checkSubscriptionStatus,
+    resetSubscription,
   } = useSubscription();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleLogout = () => {
+    // Clear Redux state
     dispatch(clearAuth());
+
+    // Reset subscription context
+    resetSubscription();
+
     showSuccess("Logged out successfully");
     navigate("/login");
   };
@@ -79,11 +90,13 @@ export default function DashboardLayout({ children }) {
           disabled={isRestricted}
           title={sidebarCollapsed ? label : undefined}
         >
-          <div className={`p-2 rounded-lg transition-all duration-300 ${
-            isRestricted 
-              ? "text-gray-500" 
-              : "text-yellow-400 group-hover:bg-yellow-400/20 group-hover:scale-110"
-          }`}>
+          <div
+            className={`p-2 rounded-lg transition-all duration-300 ${
+              isRestricted
+                ? "text-gray-500"
+                : "text-yellow-400 group-hover:bg-yellow-400/20 group-hover:scale-110"
+            }`}
+          >
             {icon}
           </div>
           {!sidebarCollapsed && (
@@ -93,12 +106,17 @@ export default function DashboardLayout({ children }) {
                 {isRestricted && <Lock size={16} className="text-yellow-400" />}
               </div>
               {description && (
-                <p className="text-xs text-gray-400 mt-1 leading-relaxed">{description}</p>
+                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                  {description}
+                </p>
               )}
             </div>
           )}
           {!sidebarCollapsed && !isRestricted && (
-            <ChevronRight size={16} className="text-gray-500 group-hover:text-yellow-400 transition-colors" />
+            <ChevronRight
+              size={16}
+              className="text-gray-500 group-hover:text-yellow-400 transition-colors"
+            />
           )}
         </button>
       </div>
@@ -110,7 +128,9 @@ export default function DashboardLayout({ children }) {
       <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-3 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-          <p className="text-lg font-medium text-gray-300">Loading dashboard...</p>
+          <p className="text-lg font-medium text-gray-300">
+            Loading dashboard...
+          </p>
           <div className="mt-4 w-32 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mx-auto"></div>
         </div>
       </div>
@@ -175,7 +195,8 @@ export default function DashboardLayout({ children }) {
                 </span>
               </div>
               <p className="text-xs text-gray-300 mb-3 leading-relaxed">
-                Upgrade to access all premium features and unlock your restaurant's full potential
+                Upgrade to access all premium features and unlock your
+                restaurant's full potential
               </p>
               <button
                 onClick={() => navigate("/subscription")}
@@ -188,13 +209,16 @@ export default function DashboardLayout({ children }) {
         )}
 
         {/* Navigation - Scrollable area with dynamic height */}
-        <div className="overflow-hidden flex-1" style={{ 
-          height: hasActiveSubscription() 
-            ? "calc(100vh - 320px)" 
-            : "calc(100vh - 440px)" 
-        }}>
-          <nav 
-            className="px-6 space-y-4 h-full overflow-y-auto pb-6" 
+        <div
+          className="overflow-hidden flex-1"
+          style={{
+            height: hasActiveSubscription()
+              ? "calc(100vh - 320px)"
+              : "calc(100vh - 440px)",
+          }}
+        >
+          <nav
+            className="px-6 space-y-4 h-full overflow-y-auto pb-6"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             <style jsx>{`
@@ -271,7 +295,9 @@ export default function DashboardLayout({ children }) {
           {!sidebarCollapsed && (
             <div className="mb-4 p-3 bg-gray-700/50 rounded-lg border border-gray-600/30">
               <p className="text-xs text-gray-400 mb-1">Logged in as</p>
-              <p className="font-semibold text-white text-sm">{user?.name || "User"}</p>
+              <p className="font-semibold text-white text-sm">
+                {user?.name || "User"}
+              </p>
               <p className="text-xs text-gray-400 truncate">{user?.email}</p>
             </div>
           )}
@@ -336,13 +362,16 @@ export default function DashboardLayout({ children }) {
           {showMobileMenu && (
             <div className="lg:hidden mb-6 bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl border border-gray-700/50 shadow-lg relative">
               {/* Scrollable navigation area */}
-              <div className="p-4 space-y-3 max-h-96 overflow-y-auto pb-20" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <div
+                className="p-4 space-y-3 max-h-96 overflow-y-auto pb-20"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
                 <style jsx>{`
                   div::-webkit-scrollbar {
                     display: none;
                   }
                 `}</style>
-                
+
                 {/* Mobile Navigation Header */}
                 <div className="pb-3 border-b border-gray-600/30">
                   <div className="flex items-center gap-2 text-sm font-semibold text-gray-400 uppercase tracking-wider">
@@ -422,38 +451,46 @@ export default function DashboardLayout({ children }) {
                   Welcome back,{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
                     {user?.name || "User"}
-                  </span> 🎉
+                  </span>{" "}
+                  🎉
                 </h2>
                 <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></div>
               </div>
-              
+
               {/* User Profile with Subscription Status */}
               <div className="flex items-center gap-4">
-                {hasActiveSubscription() && subscription && (
-                  <div className="flex items-center gap-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl px-4 py-3 shadow-lg">
-                    <div className="p-2 bg-green-500/20 rounded-lg">
-                      <Crown className="w-5 h-5 text-green-400" />
+                {user?.subscription &&
+                  user.subscription.status === "active" && (
+                    <div className="flex items-center gap-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl px-4 py-3 shadow-lg">
+                      <div className="p-2 bg-green-500/20 rounded-lg">
+                        <Crown className="w-5 h-5 text-green-400" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-semibold text-green-400">
+                          {user.subscription.plan?.name || "Premium Plan"}
+                        </span>
+                        <p className="text-xs text-green-300">
+                          Active Subscription
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-sm font-semibold text-green-400">
-                        {subscription.plan?.name || 'Premium Plan'}
-                      </span>
-                      <p className="text-xs text-green-300">Active Subscription</p>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-3 bg-gradient-to-r from-gray-700/50 to-gray-600/50 border border-gray-600/30 rounded-xl px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300">
+                  )}
+
+                {/* User Profile Button */}
+                <button
+                  onClick={() => navigate("/user-profile")}
+                  className="flex items-center gap-3 bg-gradient-to-r from-gray-700/50 to-gray-600/50 border border-gray-600/30 rounded-xl px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-yellow-500/30 cursor-pointer"
+                >
                   <div className="w-10 h-10 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-full flex items-center justify-center">
-                    <span className="text-yellow-400 font-bold text-lg">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </span>
+                    <User className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div className="hidden sm:block">
-                    <div className="text-sm font-semibold text-white">{user?.name || 'User'}</div>
+                    <div className="text-sm font-semibold text-white">
+                      {user?.name || "User"}
+                    </div>
                     <div className="text-xs text-gray-300">{user?.email}</div>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -468,9 +505,9 @@ export default function DashboardLayout({ children }) {
                       Upgrade to Premium for Full Access
                     </h3>
                     <p className="text-gray-300 mb-4 leading-relaxed">
-                      Unlock all dashboard features including restaurant management, 
-                      order processing, analytics, and real-time monitoring with 
-                      our premium subscription plans.
+                      Unlock all dashboard features including restaurant
+                      management, order processing, analytics, and real-time
+                      monitoring with our premium subscription plans.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
@@ -507,7 +544,9 @@ export default function DashboardLayout({ children }) {
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
               <div className="px-4 py-2 bg-gray-800/50 border border-gray-700/50 rounded-full">
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Content</span>
+                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Content
+                </span>
               </div>
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
             </div>
