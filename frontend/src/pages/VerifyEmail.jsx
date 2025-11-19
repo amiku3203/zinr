@@ -35,7 +35,7 @@ const base_url= import.meta.env.VITE_API_URL;
   const verifyEmail = async (verificationToken) => {
     try {
       const response = await fetch(
-        `${base_url}/auth/verify-email?token=${verificationToken}`
+        `https://zinr-b.ryzenwebsoution.in/api/v1/auth/verify-email?token=${verificationToken}`
       );
       const data = await response.json();
 
