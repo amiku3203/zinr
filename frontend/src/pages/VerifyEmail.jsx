@@ -18,7 +18,7 @@ export default function VerifyEmail() {
 
   // Get token from URL params
   const token = searchParams.get("token");
-
+const base_url= import.meta.env.VITE_API_URL;
   useEffect(() => {
     if (!token) {
       setVerificationStatus("error");
@@ -35,7 +35,7 @@ export default function VerifyEmail() {
   const verifyEmail = async (verificationToken) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/auth/verify-email?token=${verificationToken}`
+        `${base_url}/auth/verify-email?token=${verificationToken}`
       );
       const data = await response.json();
 
