@@ -1,9 +1,9 @@
- import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+const baseUrl = import.meta.env.VITE_API_URL;
 export const restoApi = createApi({
   reducerPath: "restoApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://zinr.onrender.com/api/v1",
+    baseUrl:baseUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -14,11 +14,11 @@ export const restoApi = createApi({
   endpoints: (builder) => ({
     getMyRestaurant: builder.query({
       query: () => "/restaurants/me",
-      providesTags: (result) => 
-        result?.data 
-          ? [{ type: 'Restaurant', id: result.data._id }]
-          : ['Restaurant'],
-    }),  
+      providesTags: (result) =>
+        result?.data
+          ? [{ type: "Restaurant", id: result.data._id }]
+          : ["Restaurant"],
+    }),
     createRestaurant: builder.mutation({
       query: (body) => ({
         url: "/restaurants",
@@ -46,11 +46,9 @@ export const restoApi = createApi({
         try {
           await queryFulfilled;
           // Manually invalidate and refetch
-          dispatch(
-            restoApi.util.invalidateTags(['Restaurant'])
-          );
+          dispatch(restoApi.util.invalidateTags(["Restaurant"]));
         } catch (error) {
-          console.error('Delete restaurant error:', error);
+          console.error("Delete restaurant error:", error);
         }
       },
     }),

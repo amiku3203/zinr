@@ -22,42 +22,178 @@ import SubscriptionManagement from "../pages/dashboard/SubscriptionManagement";
 import CustomerOrder from "../pages/CustomerOrder";
 import Analytics from "../pages/dashboard/Analytics";
 import RestaurantDashboard from "../pages/dashboard/RestaurantDashboard";
+import UserProfile from "../pages/dashboard/UserProfile";
 import QRTest from "../pages/QRTest";
 
 export default function AppRoute() {
   return (
     <Routes>
       {/* Public pages */}
-      <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-      <Route path="/what-we-offer" element={<MainLayout><WhatWeOffer /></MainLayout>} />
-      <Route path="/about" element={<MainLayout><About /></MainLayout>} />
-      <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
-      <Route path="/pricing" element={<MainLayout><Pricing /></MainLayout>} />
-      <Route path="/demo" element={<MainLayout><Demo /></MainLayout>} />
+      <Route
+        path="/"
+        element={
+          <MainLayout>
+            <Home />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/what-we-offer"
+        element={
+          <MainLayout>
+            <WhatWeOffer />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/about"
+        element={
+          <MainLayout>
+            <About />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/contact"
+        element={
+          <MainLayout>
+            <Contact />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/pricing"
+        element={
+          <MainLayout>
+            <Pricing />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/demo"
+        element={
+          <MainLayout>
+            <Demo />
+          </MainLayout>
+        }
+      />
 
       {/* PublicRoute for non-authenticated users */}
       <Route element={<PublicRoute />}>
-        <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
-        <Route path="/signup" element={<MainLayout><Signup /></MainLayout>} />
-        <Route path="/reset-password" element={<MainLayout><ResetPassword /></MainLayout>} />
-        <Route path="/verify-email" element={<MainLayout><VerifyEmail /></MainLayout>} />
+        <Route
+          path="/login"
+          element={
+            <MainLayout>
+              <Login />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <MainLayout>
+              <Signup />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <MainLayout>
+              <ResetPassword />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/verify-email"
+          element={
+            <MainLayout>
+              <VerifyEmail />
+            </MainLayout>
+          }
+        />
       </Route>
 
       {/* Protected pages */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={ <Dashboard /> } />
-        <Route path="/create-restaurant" element={<DashboardLayout> <CreateRestaurant/></DashboardLayout>} />
-        <Route path="/create-category" element={<DashboardLayout> <CreateCategory/></DashboardLayout>} />
-        <Route path="/create-menu-item" element={<DashboardLayout> <CreateMenuItem/></DashboardLayout>} />
-        <Route path="/order-management" element={<DashboardLayout> <OrderManagement/></DashboardLayout>} />
-        <Route path="/subscription" element={<DashboardLayout> <SubscriptionManagement/></DashboardLayout>} />
-        <Route path="/analytics" element={<DashboardLayout> <Analytics /></DashboardLayout>} />
-        <Route path="/restaurant-dashboard" element={<DashboardLayout> <RestaurantDashboard /></DashboardLayout>} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/create-restaurant"
+          element={
+            <DashboardLayout>
+              {" "}
+              <CreateRestaurant />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/create-category"
+          element={
+            <DashboardLayout>
+              {" "}
+              <CreateCategory />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/create-menu-item"
+          element={
+            <DashboardLayout>
+              {" "}
+              <CreateMenuItem />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/order-management"
+          element={
+            <DashboardLayout>
+              {" "}
+              <OrderManagement />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/subscription"
+          element={
+            <DashboardLayout>
+              {" "}
+              <SubscriptionManagement />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <DashboardLayout>
+              {" "}
+              <Analytics />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/restaurant-dashboard"
+          element={
+            <DashboardLayout>
+              {" "}
+              <RestaurantDashboard />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/user-profile"
+          element={
+            <DashboardLayout>
+              {" "}
+              <UserProfile />
+            </DashboardLayout>
+          }
+        />
       </Route>
 
       {/* Public customer order page */}
       <Route path="/menu/:restaurantId" element={<CustomerOrder />} />
-      
+
       {/* QR Code test page */}
       <Route path="/qr-test/:restaurantId" element={<QRTest />} />
     </Routes>
